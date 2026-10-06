@@ -6,8 +6,8 @@ CareConnect is a full-stack clinic management portal designed to streamline oper
 
 ```text
 CareConnect/
-├── client/          # Frontend application (React + TypeScript + Vite + Tailwind CSS)
-├── server/          # Backend application (Node.js + Express + TypeScript)
+├── frontend/          # Frontend application (React + TypeScript + Vite + Tailwind CSS)
+├── backend/          # Backend application (Node.js + Express + TypeScript)
 ├── database/        # Database schema and seed migration scripts
 ├── .env.example     # Environment variable template
 ├── .gitignore       # Git ignore rules
