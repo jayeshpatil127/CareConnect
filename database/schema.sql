@@ -1,0 +1,2 @@
+-- CareConnect Database Schema
+-- To be defined in subsequent development steps.

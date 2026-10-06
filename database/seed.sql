@@ -1,0 +1,2 @@
+-- CareConnect Database Seed Data
+-- To be defined in subsequent development steps.
