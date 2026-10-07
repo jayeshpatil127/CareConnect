@@ -1,5 +1,6 @@
 import express, { Application, Request, Response, NextFunction } from 'express';
 import cors from 'cors';
+import authRoutes from './routes/auth.routes';
 import { notFoundHandler } from './middleware/notFound';
 import { errorHandler } from './middleware/errorHandler';
 
@@ -23,6 +24,9 @@ app.get('/api/health', (_req: Request, res: Response) => {
     message: 'CareConnect API is running',
   });
 });
+
+// API Routes
+app.use('/api/auth', authRoutes);
 
 // 404 handler
 app.use(notFoundHandler);
