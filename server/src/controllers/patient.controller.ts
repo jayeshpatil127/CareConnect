@@ -3,6 +3,7 @@ import {
   validateBookAppointmentInput,
   validateGetAppointmentsFilter,
   validateAppointmentId,
+  validateLogVitalsInput,
 } from '../validators/patient.validator';
 import { PatientService } from '../services/patient.service';
 
@@ -84,4 +85,51 @@ export class PatientController {
       next(error);
     }
   }
+
+  /**
+   * GET /api/patient/vitals
+   * Returns the authenticated patient's full vitals history.
+   */
+  public static async getVitals(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      const vitals = await PatientService.getVitals(req.user!.userId);
+
+      res.status(200).json({
+        success: true,
+        count: vitals.length,
+        data: vitals,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * POST /api/patient/vitals
+   * Logs a new vital record for the authenticated patient.
+   * patient_id is derived from the JWT, never from the request body.
+   */
+  public static async logVital(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      const validatedInput = validateLogVitalsInput(req.body);
+      const vital = await PatientService.logVital(req.user!.userId, validatedInput);
+
+      res.status(201).json({
+        success: true,
+        message: 'Vital record saved successfully',
+        data: vital,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 }
+

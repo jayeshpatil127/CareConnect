@@ -149,3 +149,121 @@ export const validateAppointmentId = (idParam: string): number => {
   }
   return id;
 };
+
+// =============================================================================
+// VITALS VALIDATION
+// =============================================================================
+
+export interface LogVitalsDTO {
+  bloodPressure: string | null;
+  heartRate: number | null;
+  bloodGlucose: number | null;
+  weight: number | null;
+  spo2: number | null;
+  recordedAt: string;
+}
+
+const DATETIME_REGEX = /^\d{4}-\d{2}-\d{2}( \d{2}:\d{2}(:\d{2})?|T\d{2}:\d{2}(:\d{2})?)?$/;
+
+export const validateLogVitalsInput = (body: unknown): LogVitalsDTO => {
+  if (!body || typeof body !== 'object') {
+    throw new AppError('Request body is required and must be an object', 400);
+  }
+
+  const { bloodPressure, heartRate, bloodGlucose, weight, spo2, recordedAt } = body as Record<
+    string,
+    unknown
+  >;
+
+  // At least one vital field must be provided
+  const anyProvided = [bloodPressure, heartRate, bloodGlucose, weight, spo2].some(
+    (v) => v !== undefined && v !== null && v !== ''
+  );
+  if (!anyProvided) {
+    throw new AppError(
+      'At least one vital field (bloodPressure, heartRate, bloodGlucose, weight, spo2) must be provided',
+      400
+    );
+  }
+
+  // bloodPressure: optional, VARCHAR(20), format like "120/80"
+  let validatedBP: string | null = null;
+  if (bloodPressure !== undefined && bloodPressure !== null && bloodPressure !== '') {
+    if (typeof bloodPressure !== 'string') {
+      throw new AppError('bloodPressure must be a string (e.g. "120/80")', 400);
+    }
+    const trimmedBP = bloodPressure.trim();
+    if (trimmedBP.length > 20) {
+      throw new AppError('bloodPressure cannot exceed 20 characters', 400);
+    }
+    validatedBP = trimmedBP.length > 0 ? trimmedBP : null;
+  }
+
+  // heartRate: optional, SMALLINT UNSIGNED (0-65535, realistically 0-300)
+  let validatedHR: number | null = null;
+  if (heartRate !== undefined && heartRate !== null && heartRate !== '') {
+    const hrNum = Number(heartRate);
+    if (isNaN(hrNum) || !Number.isInteger(hrNum) || hrNum < 0 || hrNum > 300) {
+      throw new AppError('heartRate must be an integer between 0 and 300', 400);
+    }
+    validatedHR = hrNum;
+  }
+
+  // bloodGlucose: optional, DECIMAL(6,1)
+  let validatedBG: number | null = null;
+  if (bloodGlucose !== undefined && bloodGlucose !== null && bloodGlucose !== '') {
+    const bgNum = Number(bloodGlucose);
+    if (isNaN(bgNum) || bgNum < 0 || bgNum > 99999.9) {
+      throw new AppError('bloodGlucose must be a non-negative number (mg/dL)', 400);
+    }
+    validatedBG = Math.round(bgNum * 10) / 10;
+  }
+
+  // weight: optional, DECIMAL(6,2)
+  let validatedWeight: number | null = null;
+  if (weight !== undefined && weight !== null && weight !== '') {
+    const wNum = Number(weight);
+    if (isNaN(wNum) || wNum < 0 || wNum > 9999.99) {
+      throw new AppError('weight must be a non-negative number (kg)', 400);
+    }
+    validatedWeight = Math.round(wNum * 100) / 100;
+  }
+
+  // spo2: optional, TINYINT UNSIGNED, must be 0-100
+  let validatedSpo2: number | null = null;
+  if (spo2 !== undefined && spo2 !== null && spo2 !== '') {
+    const spo2Num = Number(spo2);
+    if (isNaN(spo2Num) || !Number.isInteger(spo2Num) || spo2Num < 0 || spo2Num > 100) {
+      throw new AppError('spo2 must be an integer between 0 and 100 (percentage)', 400);
+    }
+    validatedSpo2 = spo2Num;
+  }
+
+  // recordedAt: optional, defaults to current UTC datetime if not provided
+  let validatedRecordedAt: string;
+  if (recordedAt !== undefined && recordedAt !== null && recordedAt !== '') {
+    if (typeof recordedAt !== 'string') {
+      throw new AppError('recordedAt must be a valid datetime string', 400);
+    }
+    const trimmedDT = recordedAt.trim();
+    if (!DATETIME_REGEX.test(trimmedDT) || isNaN(Date.parse(trimmedDT))) {
+      throw new AppError(
+        'recordedAt must be a valid datetime in YYYY-MM-DD or YYYY-MM-DD HH:MM:SS format',
+        400
+      );
+    }
+    validatedRecordedAt = trimmedDT.replace('T', ' ');
+  } else {
+    // Default to current UTC datetime formatted as MySQL DATETIME
+    validatedRecordedAt = new Date().toISOString().replace('T', ' ').substring(0, 19);
+  }
+
+  return {
+    bloodPressure: validatedBP,
+    heartRate: validatedHR,
+    bloodGlucose: validatedBG,
+    weight: validatedWeight,
+    spo2: validatedSpo2,
+    recordedAt: validatedRecordedAt,
+  };
+};

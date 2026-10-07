@@ -4,6 +4,7 @@ import { AppError } from '../utils/errors';
 import {
   BookAppointmentDTO,
   GetAppointmentsFilterDTO,
+  LogVitalsDTO,
 } from '../validators/patient.validator';
 
 export interface DoctorDetails {
@@ -36,6 +37,17 @@ export interface BookedAppointment {
   mode: string;
   notes: string | null;
   status: string;
+}
+
+export interface VitalRecord {
+  id: number;
+  bloodPressure: string | null;
+  heartRate: number | null;
+  bloodGlucose: number | null;
+  weight: number | null;
+  spo2: number | null;
+  recordedAt: string;
+  createdAt: string;
 }
 
 export class PatientService {
@@ -236,6 +248,80 @@ export class PatientService {
       if (error instanceof AppError) throw error;
       console.error('Failed to cancel appointment:', error.message || error);
       throw new AppError('Failed to cancel appointment', 500);
+    }
+  }
+
+  /**
+   * Retrieves all vitals records belonging to the authenticated patient,
+   * ordered by most recent first.
+   */
+  public static async getVitals(userId: number): Promise<VitalRecord[]> {
+    const patientId = await this.resolvePatientId(userId);
+
+    try {
+      const [rows] = await pool.execute<RowDataPacket[]>(
+        `SELECT id, blood_pressure, heart_rate, blood_glucose, weight, spo2, recorded_at, created_at
+         FROM vitals
+         WHERE patient_id = ?
+         ORDER BY recorded_at DESC`,
+        [patientId]
+      );
+
+      return rows.map((row) => ({
+        id: row.id,
+        bloodPressure: row.blood_pressure,
+        heartRate: row.heart_rate,
+        bloodGlucose: row.blood_glucose !== null ? Number(row.blood_glucose) : null,
+        weight: row.weight !== null ? Number(row.weight) : null,
+        spo2: row.spo2,
+        recordedAt: row.recorded_at,
+        createdAt: row.created_at,
+      }));
+    } catch (error: any) {
+      if (error instanceof AppError) throw error;
+      console.error('Failed to retrieve vitals:', error.message || error);
+      throw new AppError('Failed to retrieve vitals', 500);
+    }
+  }
+
+  /**
+   * Creates a new vital record for the authenticated patient.
+   * patient_id is ALWAYS resolved from the JWT-authenticated user,
+   * never from the request body.
+   */
+  public static async logVital(userId: number, data: LogVitalsDTO): Promise<VitalRecord> {
+    const patientId = await this.resolvePatientId(userId);
+
+    try {
+      const [result] = await pool.execute<ResultSetHeader>(
+        `INSERT INTO vitals
+           (patient_id, blood_pressure, heart_rate, blood_glucose, weight, spo2, recorded_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        [
+          patientId,
+          data.bloodPressure,
+          data.heartRate,
+          data.bloodGlucose,
+          data.weight,
+          data.spo2,
+          data.recordedAt,
+        ]
+      );
+
+      return {
+        id: result.insertId,
+        bloodPressure: data.bloodPressure,
+        heartRate: data.heartRate,
+        bloodGlucose: data.bloodGlucose,
+        weight: data.weight,
+        spo2: data.spo2,
+        recordedAt: data.recordedAt,
+        createdAt: new Date().toISOString().replace('T', ' ').substring(0, 19),
+      };
+    } catch (error: any) {
+      if (error instanceof AppError) throw error;
+      console.error('Failed to log vital:', error.message || error);
+      throw new AppError('Failed to save vital record', 500);
     }
   }
 }

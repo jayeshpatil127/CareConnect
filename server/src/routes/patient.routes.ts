@@ -17,4 +17,10 @@ router.post('/appointments', PatientController.bookAppointment);
 // PATCH /api/patient/appointments/:id/cancel
 router.patch('/appointments/:id/cancel', PatientController.cancelAppointment);
 
+// GET /api/patient/vitals
+router.get('/vitals', PatientController.getVitals);
+
+// POST /api/patient/vitals
+router.post('/vitals', PatientController.logVital);
+
 export default router;
