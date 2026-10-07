@@ -1,27 +1,61 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { Activity } from 'lucide-react';
+import React from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider } from './contexts/AuthContext';
+import { AppLayout } from './components/AppLayout';
 
-function TestHomePage() {
-  return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
-      <div className="text-center space-y-4">
-        <div className="inline-flex items-center justify-center p-3 bg-blue-100 text-blue-600 rounded-full">
-          <Activity className="w-8 h-8" />
-        </div>
-        <h1 className="text-2xl font-bold text-slate-800">CareConnect</h1>
-        <p className="text-slate-600">Frontend and Backend configured successfully.</p>
-      </div>
-    </div>
-  );
-}
+// Auth
+import Login from './pages/auth/Login';
+import Register from './pages/auth/Register';
+
+// Patient
+import PatientOverview from './pages/patient/Overview';
+import PatientAppointments from './pages/patient/Appointments';
+import PatientVitals from './pages/patient/Vitals';
+import PatientMedicalHistory from './pages/patient/MedicalHistory';
+import PatientPrescriptions from './pages/patient/Prescriptions';
+import PatientProfile from './pages/patient/Profile';
+
+// Doctor
+import DoctorOverview from './pages/doctor/Overview';
+
+// Admin
+import AdminOverview from './pages/admin/Overview';
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<TestHomePage />} />
-      </Routes>
-    </BrowserRouter>
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Navigate to="/login" replace />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+
+          {/* Patient Routes */}
+          <Route path="/patient" element={<AppLayout allowedRole="patient" />}>
+            <Route index element={<PatientOverview />} />
+            <Route path="appointments" element={<PatientAppointments />} />
+            <Route path="vitals" element={<PatientVitals />} />
+            <Route path="history" element={<PatientMedicalHistory />} />
+            <Route path="prescriptions" element={<PatientPrescriptions />} />
+            <Route path="profile" element={<PatientProfile />} />
+          </Route>
+
+          {/* Doctor Routes */}
+          <Route path="/doctor" element={<AppLayout allowedRole="doctor" />}>
+            <Route index element={<DoctorOverview />} />
+            <Route path="*" element={<DoctorOverview />} />
+          </Route>
+
+          {/* Admin Routes */}
+          <Route path="/admin" element={<AppLayout allowedRole="admin" />}>
+            <Route index element={<AdminOverview />} />
+            <Route path="*" element={<AdminOverview />} />
+          </Route>
+          
+          <Route path="*" element={<Navigate to="/login" replace />} />
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
   );
 }
 
