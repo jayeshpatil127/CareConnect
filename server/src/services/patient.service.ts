@@ -61,6 +61,17 @@ export interface MedicalHistoryRecord {
   createdAt: string;
 }
 
+export interface PrescriptionRecord {
+  id: number;
+  medicine: string;
+  dosage: string;
+  frequency: string;
+  doctorName: string;
+  refills: number;
+  status: string;
+  prescribedAt: string;
+}
+
 export class PatientService {
   /**
    * Resolves the patient's record ID from the authenticated user's ID.
@@ -377,6 +388,50 @@ export class PatientService {
       if (error instanceof AppError) throw error;
       console.error('Failed to retrieve medical history:', error.message || error);
       throw new AppError('Failed to retrieve medical history', 500);
+    }
+  }
+
+  /**
+   * Retrieves prescriptions belonging exclusively to the authenticated patient.
+   * Ordered by prescribed date (newest first).
+   */
+  public static async getPrescriptions(userId: number): Promise<PrescriptionRecord[]> {
+    const patientId = await this.resolvePatientId(userId);
+
+    const sql = `
+      SELECT 
+        p.id,
+        p.medicine,
+        p.dosage,
+        p.frequency,
+        p.refills,
+        p.status,
+        p.prescribed_at,
+        u.full_name AS doctor_name
+      FROM prescriptions p
+      INNER JOIN doctors d ON p.doctor_id = d.id
+      INNER JOIN users u ON d.user_id = u.id
+      WHERE p.patient_id = ?
+      ORDER BY p.prescribed_at DESC
+    `;
+
+    try {
+      const [rows] = await pool.execute<RowDataPacket[]>(sql, [patientId]);
+
+      return rows.map((row) => ({
+        id: row.id,
+        medicine: row.medicine,
+        dosage: row.dosage,
+        frequency: row.frequency,
+        doctorName: row.doctor_name,
+        refills: row.refills,
+        status: row.status,
+        prescribedAt: row.prescribed_at,
+      }));
+    } catch (error: any) {
+      if (error instanceof AppError) throw error;
+      console.error('Failed to retrieve prescriptions:', error.message || error);
+      throw new AppError('Failed to retrieve prescriptions', 500);
     }
   }
 }

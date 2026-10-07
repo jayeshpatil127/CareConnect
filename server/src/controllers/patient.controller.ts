@@ -159,4 +159,26 @@ export class PatientController {
       next(error);
     }
   }
+
+  /**
+   * GET /api/patient/prescriptions
+   * Retrieves the authenticated patient's prescriptions.
+   */
+  public static async getPrescriptions(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      const prescriptions = await PatientService.getPrescriptions(req.user!.userId);
+
+      res.status(200).json({
+        success: true,
+        count: prescriptions.length,
+        data: prescriptions,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 }
