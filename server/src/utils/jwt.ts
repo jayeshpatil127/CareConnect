@@ -1,10 +1,11 @@
 import jwt, { SignOptions, JwtPayload } from 'jsonwebtoken';
 import { config } from '../config';
 import { AppError } from './errors';
+import { UserRole } from '../types/auth';
 
 export interface TokenPayload {
   userId: number;
-  role: string;
+  role: UserRole;
 }
 
 /**
@@ -33,7 +34,7 @@ export const signToken = (payload: TokenPayload): string => {
 
 /**
  * Verifies a JWT token and returns the decoded payload.
- * Kept reusable for subsequent auth middleware commits.
+ * Validates token signature, expiration, and required payload fields.
  *
  * @param token - JWT token string
  * @returns Decoded token payload
@@ -45,12 +46,20 @@ export const verifyToken = (token: string): TokenPayload => {
   }
 
   try {
-    const decoded = jwt.verify(token, secret) as JwtPayload & TokenPayload;
+    const decoded = jwt.verify(token, secret) as JwtPayload & { userId?: number; role?: UserRole };
+
+    if (!decoded.userId || !decoded.role) {
+      throw new AppError('Invalid or expired token', 401);
+    }
+
     return {
       userId: decoded.userId,
       role: decoded.role,
     };
   } catch (error: any) {
-    throw new AppError('Invalid or expired authentication token', 401);
+    if (error instanceof AppError) {
+      throw error;
+    }
+    throw new AppError('Invalid or expired token', 401);
   }
 };
