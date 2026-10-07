@@ -2,6 +2,7 @@ import express, { Application, Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import authRoutes from './routes/auth.routes';
 import patientRoutes from './routes/patient.routes';
+import doctorRoutes from './routes/doctor.routes';
 import testRoutes from './routes/test.routes';
 import { notFoundHandler } from './middleware/notFound';
 import { errorHandler } from './middleware/errorHandler';
@@ -30,6 +31,7 @@ app.get('/api/health', (_req: Request, res: Response) => {
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/patient', patientRoutes);
+app.use('/api/doctor', doctorRoutes);
 app.use('/api/test', testRoutes);
 
 // 404 handler
