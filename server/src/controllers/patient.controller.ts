@@ -4,6 +4,7 @@ import {
   validateGetAppointmentsFilter,
   validateAppointmentId,
   validateLogVitalsInput,
+  validateGetMedicalHistoryFilter,
 } from '../validators/patient.validator';
 import { PatientService } from '../services/patient.service';
 
@@ -131,5 +132,31 @@ export class PatientController {
       next(error);
     }
   }
-}
 
+  /**
+   * GET /api/patient/medical-history
+   * Retrieves the authenticated patient's medical history.
+   * Supports optional filtering by category.
+   */
+  public static async getMedicalHistory(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      const filters = validateGetMedicalHistoryFilter(req.query);
+      const history = await PatientService.getMedicalHistory(
+        req.user!.userId,
+        filters
+      );
+
+      res.status(200).json({
+        success: true,
+        count: history.length,
+        data: history,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+}

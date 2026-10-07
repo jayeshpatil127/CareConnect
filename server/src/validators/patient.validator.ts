@@ -27,6 +27,16 @@ const ALLOWED_STATUSES: readonly AppointmentStatus[] = [
   'cancelled',
 ] as const;
 
+export type MedicalHistoryCategory = 'consultation' | 'prescription' | 'lab' | 'diagnosis' | 'follow-up';
+
+const ALLOWED_CATEGORIES: readonly MedicalHistoryCategory[] = [
+  'consultation',
+  'prescription',
+  'lab',
+  'diagnosis',
+  'follow-up',
+] as const;
+
 export const validateBookAppointmentInput = (body: unknown): BookAppointmentDTO => {
   if (!body || typeof body !== 'object') {
     throw new AppError('Request body is required and must be an object', 400);
@@ -266,4 +276,34 @@ export const validateLogVitalsInput = (body: unknown): LogVitalsDTO => {
     spo2: validatedSpo2,
     recordedAt: validatedRecordedAt,
   };
+};
+
+// =============================================================================
+// MEDICAL HISTORY VALIDATION
+// =============================================================================
+
+export interface GetMedicalHistoryFilterDTO {
+  category?: MedicalHistoryCategory;
+}
+
+export const validateGetMedicalHistoryFilter = (
+  query: Record<string, unknown>
+): GetMedicalHistoryFilterDTO => {
+  const result: GetMedicalHistoryFilterDTO = {};
+
+  if (query.category !== undefined && query.category !== null) {
+    if (typeof query.category !== 'string') {
+      throw new AppError('category filter must be a string', 400);
+    }
+    const trimmedCategory = query.category.trim().toLowerCase() as MedicalHistoryCategory;
+    if (!ALLOWED_CATEGORIES.includes(trimmedCategory)) {
+      throw new AppError(
+        `Invalid category filter. Allowed values: ${ALLOWED_CATEGORIES.join(', ')}`,
+        400
+      );
+    }
+    result.category = trimmedCategory;
+  }
+
+  return result;
 };

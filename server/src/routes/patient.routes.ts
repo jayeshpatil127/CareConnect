@@ -23,4 +23,7 @@ router.get('/vitals', PatientController.getVitals);
 // POST /api/patient/vitals
 router.post('/vitals', PatientController.logVital);
 
+// GET /api/patient/medical-history
+router.get('/medical-history', PatientController.getMedicalHistory);
+
 export default router;

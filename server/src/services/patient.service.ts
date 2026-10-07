@@ -5,6 +5,7 @@ import {
   BookAppointmentDTO,
   GetAppointmentsFilterDTO,
   LogVitalsDTO,
+  GetMedicalHistoryFilterDTO,
 } from '../validators/patient.validator';
 
 export interface DoctorDetails {
@@ -46,6 +47,16 @@ export interface VitalRecord {
   bloodGlucose: number | null;
   weight: number | null;
   spo2: number | null;
+  recordedAt: string;
+  createdAt: string;
+}
+
+export interface MedicalHistoryRecord {
+  id: number;
+  patientId: number;
+  category: string;
+  title: string;
+  description: string | null;
   recordedAt: string;
   createdAt: string;
 }
@@ -322,6 +333,50 @@ export class PatientService {
       if (error instanceof AppError) throw error;
       console.error('Failed to log vital:', error.message || error);
       throw new AppError('Failed to save vital record', 500);
+    }
+  }
+
+  /**
+   * Retrieves medical history belonging exclusively to the authenticated patient.
+   * Supports optional category filtering. Ordered chronologically.
+   */
+  public static async getMedicalHistory(
+    userId: number,
+    filters: GetMedicalHistoryFilterDTO
+  ): Promise<MedicalHistoryRecord[]> {
+    const patientId = await this.resolvePatientId(userId);
+
+    let sql = `
+      SELECT id, patient_id, category, title, description, recorded_at, created_at
+      FROM medical_history
+      WHERE patient_id = ?
+    `;
+
+    const params: (string | number)[] = [patientId];
+
+    if (filters.category) {
+      sql += ' AND category = ?';
+      params.push(filters.category);
+    }
+
+    sql += ' ORDER BY recorded_at DESC';
+
+    try {
+      const [rows] = await pool.execute<RowDataPacket[]>(sql, params);
+
+      return rows.map((row) => ({
+        id: row.id,
+        patientId: row.patient_id,
+        category: row.category,
+        title: row.title,
+        description: row.description,
+        recordedAt: row.recorded_at,
+        createdAt: row.created_at,
+      }));
+    } catch (error: any) {
+      if (error instanceof AppError) throw error;
+      console.error('Failed to retrieve medical history:', error.message || error);
+      throw new AppError('Failed to retrieve medical history', 500);
     }
   }
 }
