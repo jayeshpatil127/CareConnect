@@ -179,4 +179,26 @@ export class AuthService {
       throw new AppError('An error occurred during login', 500);
     }
   }
+
+  /**
+   * Retrieves the current authenticated user's profile by ID.
+   */
+  public static async getMe(userId: number): Promise<RegisteredUser> {
+    const [rows] = await pool.execute<RowDataPacket[]>(
+      'SELECT id, full_name, email, role FROM users WHERE id = ?',
+      [userId]
+    );
+
+    if (rows.length === 0) {
+      throw new AppError('User not found', 404);
+    }
+
+    const row = rows[0];
+    return {
+      id: row.id,
+      fullName: row.full_name,
+      email: row.email,
+      role: row.role,
+    };
+  }
 }

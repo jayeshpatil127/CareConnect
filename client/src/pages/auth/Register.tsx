@@ -21,6 +21,12 @@ export default function Register() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+
+    if (formData.password.length < 8) {
+      setError('Password must be at least 8 characters long');
+      return;
+    }
+
     setLoading(true);
     try {
       await register(formData);
@@ -70,9 +76,11 @@ export default function Register() {
             />
             
             <Input 
-              label="Password" 
+              label="Password (min 8 characters)" 
               type="password" 
               required 
+              minLength={8}
+              placeholder="At least 8 characters"
               value={formData.password}
               onChange={(e: any) => setFormData({...formData, password: e.target.value})}
             />

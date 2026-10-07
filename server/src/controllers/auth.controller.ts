@@ -48,4 +48,21 @@ export class AuthController {
       next(error);
     }
   }
+
+  public static async getMe(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      const user = await AuthService.getMe(req.user!.userId);
+      res.status(200).json({
+        success: true,
+        data: { user },
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 }
+

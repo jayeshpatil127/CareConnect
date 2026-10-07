@@ -16,13 +16,50 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const storedToken = localStorage.getItem('token');
-    const storedUser = localStorage.getItem('user');
-    if (storedToken && storedUser) {
-      setToken(storedToken);
-      setUser(JSON.parse(storedUser));
-    }
-    setIsLoading(false);
+    const verifySession = async () => {
+      const storedToken = localStorage.getItem('token');
+      if (!storedToken) {
+        setIsLoading(false);
+        return;
+      }
+
+      try {
+        // Issue request with token to verify signature, expiration, and user validity
+        const res = await fetch('http://localhost:5000/api/auth/me', {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${storedToken}`,
+          },
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          if (data?.data?.user) {
+            setUser(data.data.user);
+            setToken(storedToken);
+            localStorage.setItem('user', JSON.stringify(data.data.user));
+          } else {
+            logoutUser();
+          }
+        } else {
+          // Token expired or invalid on server
+          logoutUser();
+        }
+      } catch (err) {
+        // Server unreachable or network error, fallback to storedUser if available
+        const storedUser = localStorage.getItem('user');
+        if (storedUser) {
+          setToken(storedToken);
+          setUser(JSON.parse(storedUser));
+        } else {
+          logoutUser();
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    verifySession();
   }, []);
 
   const loginUser = (userData: any, userToken: string) => {
