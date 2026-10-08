@@ -24,6 +24,10 @@ import DoctorProfile from './pages/doctor/Profile';
 
 // Admin
 import AdminOverview from './pages/admin/Overview';
+import AdminDoctors from './pages/admin/Doctors';
+import AdminPatients from './pages/admin/Patients';
+import AdminAppointments from './pages/admin/Appointments';
+import AdminLogs from './pages/admin/Logs';
 
 function App() {
   return (
@@ -57,9 +61,13 @@ function App() {
           {/* Admin Routes */}
           <Route path="/admin" element={<AppLayout allowedRole="admin" />}>
             <Route index element={<AdminOverview />} />
+            <Route path="doctors" element={<AdminDoctors />} />
+            <Route path="patients" element={<AdminPatients />} />
+            <Route path="appointments" element={<AdminAppointments />} />
+            <Route path="logs" element={<AdminLogs />} />
             <Route path="*" element={<AdminOverview />} />
           </Route>
-          
+
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
       </BrowserRouter>
