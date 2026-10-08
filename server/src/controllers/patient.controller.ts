@@ -181,4 +181,27 @@ export class PatientController {
       next(error);
     }
   }
+
+  /**
+   * GET /api/patient/doctors
+   * Returns all active doctors available for appointment booking.
+   * This endpoint replaces the hardcoded doctor list in the frontend.
+   */
+  public static async getActiveDoctors(
+    _req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      const doctors = await PatientService.getActiveDoctors();
+
+      res.status(200).json({
+        success: true,
+        count: doctors.length,
+        data: doctors,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 }

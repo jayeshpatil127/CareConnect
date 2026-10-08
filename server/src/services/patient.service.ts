@@ -434,4 +434,32 @@ export class PatientService {
       throw new AppError('Failed to retrieve prescriptions', 500);
     }
   }
+
+  /**
+   * Returns all active doctors available for appointment booking.
+   * Only doctors with status = 'active' are returned.
+   * This is used to populate the doctor dropdown in the patient booking modal.
+   */
+  public static async getActiveDoctors(): Promise<DoctorDetails[]> {
+    try {
+      const [rows] = await pool.execute<RowDataPacket[]>(
+        `SELECT d.id, u.full_name AS fullName, d.specialization, d.status
+         FROM doctors d
+         INNER JOIN users u ON d.user_id = u.id
+         WHERE d.status = 'active'
+         ORDER BY u.full_name ASC`
+      );
+
+      return rows.map((row) => ({
+        id: row.id,
+        fullName: row.fullName,
+        specialization: row.specialization,
+        status: row.status,
+      }));
+    } catch (error: any) {
+      if (error instanceof AppError) throw error;
+      console.error('Failed to retrieve active doctors:', error.message || error);
+      throw new AppError('Failed to retrieve doctors', 500);
+    }
+  }
 }

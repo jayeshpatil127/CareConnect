@@ -1,5 +1,7 @@
 import { apiClient } from './apiClient';
 
+export const getActiveDoctors = () => apiClient('/patient/doctors');
+
 export const getAppointments = (filters: any = {}) => {
   const query = new URLSearchParams(filters).toString();
   return apiClient(`/patient/appointments${query ? '?' + query : ''}`);

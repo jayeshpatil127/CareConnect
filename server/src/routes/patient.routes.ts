@@ -8,6 +8,9 @@ const router = Router();
 // Protect all patient routes: require valid JWT and patient role
 router.use(authenticateToken, authorizeRole('patient'));
 
+// GET /api/patient/doctors  — returns active doctors for appointment booking
+router.get('/doctors', PatientController.getActiveDoctors);
+
 // GET /api/patient/appointments
 router.get('/appointments', PatientController.getAppointments);
 
