@@ -17,6 +17,10 @@ import PatientProfile from './pages/patient/Profile';
 
 // Doctor
 import DoctorOverview from './pages/doctor/Overview';
+import DoctorAppointments from './pages/doctor/Appointments';
+import DoctorPatients from './pages/doctor/Patients';
+import DoctorNotes from './pages/doctor/Notes';
+import DoctorProfile from './pages/doctor/Profile';
 
 // Admin
 import AdminOverview from './pages/admin/Overview';
@@ -43,6 +47,10 @@ function App() {
           {/* Doctor Routes */}
           <Route path="/doctor" element={<AppLayout allowedRole="doctor" />}>
             <Route index element={<DoctorOverview />} />
+            <Route path="appointments" element={<DoctorAppointments />} />
+            <Route path="patients" element={<DoctorPatients />} />
+            <Route path="notes" element={<DoctorNotes />} />
+            <Route path="profile" element={<DoctorProfile />} />
             <Route path="*" element={<DoctorOverview />} />
           </Route>
 

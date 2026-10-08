@@ -13,8 +13,9 @@ export interface Appointment {
   mode: string;
   notes: string | null;
   status: string;
+  patientName?: string;
   doctor?: { fullName: string; specialization: string; };
-  patient?: { fullName: string; };
+  patient?: { id?: number; fullName: string; };
 }
 
 export interface Vital {
