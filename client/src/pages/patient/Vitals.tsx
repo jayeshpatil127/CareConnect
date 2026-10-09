@@ -98,13 +98,13 @@ export default function PatientVitals() {
 
       {/* Log Modal */}
       {isLogging && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-          <Card className="w-full max-w-md bg-white">
-            <div className="p-6 border-b border-gray-100 flex justify-between items-center">
+        <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/50 p-4 sm:items-center">
+          <Card className="my-auto flex max-h-[calc(100dvh-2rem)] w-full max-w-md flex-col bg-white">
+            <div className="flex shrink-0 items-center justify-between border-b border-gray-100 p-4 sm:p-6">
               <h2 className="text-lg font-bold flex items-center gap-2"><Activity className="w-5 h-5 text-blue-600" /> Log Vitals</h2>
               <button onClick={() => setIsLogging(false)} className="text-gray-400 hover:text-gray-600"><X className="w-5 h-5"/></button>
             </div>
-            <form onSubmit={handleLog} className="p-6 space-y-4">
+            <form onSubmit={handleLog} className="min-h-0 space-y-4 overflow-y-auto p-4 sm:p-6">
               {logError && <div className="text-red-500 text-sm bg-red-50 p-3 rounded">{logError}</div>}
               
               <Input label="Blood Pressure (e.g. 120/80)" value={logData.bloodPressure} onChange={(e: any) => setLogData({...logData, bloodPressure: e.target.value})} />

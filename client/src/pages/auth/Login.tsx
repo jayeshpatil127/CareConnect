@@ -7,8 +7,8 @@ import { Button } from '../../components/ui/Button';
 import { HeartPulse, AlertCircle } from 'lucide-react';
 
 export default function Login() {
-  const [email, setEmail] = useState('patient@careconnect.test');
-  const [password, setPassword] = useState('Patient@123');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { loginUser, user } = useAuth();
@@ -85,12 +85,7 @@ export default function Login() {
             </Link>
           </div>
           
-          <div className="mt-8 text-xs text-gray-400 text-center space-y-1 bg-gray-50 p-4 rounded-lg">
-             <p className="font-semibold text-gray-500 mb-2">Test Accounts:</p>
-             <p>Patient: patient@careconnect.test / Patient@123</p>
-             <p>Doctor: doctor@careconnect.test / Doctor@123</p>
-             <p>Admin: admin@careconnect.test / Admin@123</p>
-          </div>
+         
         </div>
       </div>
     </div>

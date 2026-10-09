@@ -296,8 +296,8 @@ export default function AdminDoctors() {
 
       {/* Add Doctor Modal */}
       {showAddModal && (
-        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl shadow-xl max-w-md w-full border border-gray-200 overflow-hidden">
+        <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/40 p-4 backdrop-blur-sm sm:items-center">
+          <div className="my-auto max-h-[calc(100dvh-2rem)] w-full max-w-md overflow-y-auto rounded-xl border border-gray-200 bg-white shadow-xl">
             <div className="flex items-center justify-between p-5 border-b border-gray-100">
               <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
                 <Stethoscope className="w-5 h-5 text-blue-600" />

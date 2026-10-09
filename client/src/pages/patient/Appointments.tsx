@@ -33,6 +33,7 @@ export default function PatientAppointments() {
   // Active doctors loaded from API
   const [activeDoctors, setActiveDoctors] = useState<{ id: number; fullName: string; specialization: string }[]>([]);
   const [doctorsLoading, setDoctorsLoading] = useState(false);
+  const [doctorsError, setDoctorsError] = useState('');
 
   const fetchAppointments = async () => {
     setLoading(true);
@@ -52,6 +53,8 @@ export default function PatientAppointments() {
 
   const fetchActiveDoctors = async () => {
     setDoctorsLoading(true);
+    setDoctorsError('');
+    setActiveDoctors([]);
     try {
       const res = await getActiveDoctors();
       setActiveDoctors(res.data || []);
@@ -59,8 +62,8 @@ export default function PatientAppointments() {
       if (res.data && res.data.length > 0) {
         setBookingData(prev => ({ ...prev, doctorId: String(res.data[0].id) }));
       }
-    } catch {
-      // Non-critical: leave list empty; user will see "No active doctors"
+    } catch (err) {
+      setDoctorsError(err instanceof Error ? err.message : 'Failed to load doctors. Please try again.');
     } finally {
       setDoctorsLoading(false);
     }
@@ -192,17 +195,22 @@ export default function PatientAppointments() {
 
       {/* Book Appointment Modal */}
       {isBooking && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-          <Card className="w-full max-w-md bg-white">
-            <div className="p-6 border-b border-gray-100 flex justify-between items-center">
+        <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/50 p-4 sm:items-center">
+          <Card className="my-auto flex max-h-[calc(100dvh-2rem)] w-full max-w-md flex-col bg-white">
+            <div className="flex shrink-0 items-center justify-between border-b border-gray-100 p-4 sm:p-6">
               <h2 className="text-lg font-bold">Book Appointment</h2>
               <button onClick={() => setIsBooking(false)} className="text-gray-400 hover:text-gray-600"><X className="w-5 h-5" /></button>
             </div>
-            <form onSubmit={handleBook} className="p-6 space-y-4">
+            <form onSubmit={handleBook} className="min-h-0 space-y-4 overflow-y-auto p-4 sm:p-6">
               {bookingError && <div className="text-red-500 text-sm bg-red-50 p-3 rounded">{bookingError}</div>}
 
               {doctorsLoading ? (
                 <div className="text-sm text-gray-500 text-center py-4">Loading available doctors...</div>
+              ) : doctorsError ? (
+                <div role="alert" className="text-sm text-red-700 bg-red-50 border border-red-200 p-3 rounded">
+                  <p>{doctorsError}</p>
+                  <button type="button" onClick={fetchActiveDoctors} className="mt-2 underline">Try again</button>
+                </div>
               ) : activeDoctors.length === 0 ? (
                 <div className="text-sm text-amber-700 bg-amber-50 border border-amber-200 p-3 rounded">
                   No active doctors are available for booking at this time.
@@ -226,7 +234,7 @@ export default function PatientAppointments() {
                 </div>
               )}
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <Input
                   label="Date" type="date" required
                   value={bookingData.appointmentDate} onChange={(e: any) => setBookingData({ ...bookingData, appointmentDate: e.target.value })}

@@ -177,7 +177,7 @@ export default function DoctorPatients() {
       {/* Patient Details Modal */}
       {selectedPatientId && (
         <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-gray-200">
+          <div className="my-auto max-h-[calc(100dvh-2rem)] w-full max-w-2xl overflow-y-auto rounded-xl border border-gray-200 bg-white shadow-xl">
             {/* Modal Header */}
             <div className="flex items-center justify-between p-5 border-b border-gray-200 sticky top-0 bg-white z-10">
               <div className="flex items-center gap-3">
@@ -208,7 +208,7 @@ export default function DoctorPatients() {
               ) : patientDetails ? (
                 <>
                   {/* Medical Information Cards */}
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  <div className="grid grid-cols-1 min-[420px]:grid-cols-2 gap-3 sm:grid-cols-3">
                     <div className="p-3 bg-gray-50 rounded-lg border border-gray-100">
                       <p className="text-xs text-gray-500 font-medium">Blood Group</p>
                       <p className="text-sm font-bold text-gray-900 mt-1">

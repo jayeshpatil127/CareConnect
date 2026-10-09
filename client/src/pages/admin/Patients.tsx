@@ -243,8 +243,8 @@ export default function AdminPatients() {
 
       {/* Add Patient Modal */}
       {showAddModal && (
-        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl shadow-xl max-w-lg w-full border border-gray-200 overflow-hidden">
+        <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/40 p-4 backdrop-blur-sm sm:items-center">
+          <div className="my-auto max-h-[calc(100dvh-2rem)] w-full max-w-lg overflow-hidden rounded-xl border border-gray-200 bg-white shadow-xl">
             <div className="flex items-center justify-between p-5 border-b border-gray-100">
               <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
                 <Users className="w-5 h-5 text-blue-600" />
@@ -258,7 +258,7 @@ export default function AdminPatients() {
               </button>
             </div>
 
-            <form onSubmit={handleAddPatient} className="p-5 space-y-4 max-h-[80vh] overflow-y-auto">
+            <form onSubmit={handleAddPatient} className="max-h-[calc(100dvh-8rem)] space-y-4 overflow-y-auto p-5">
               {formError && (
                 <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-xs">
                   <AlertCircle className="w-4 h-4 flex-shrink-0" />
