@@ -128,7 +128,7 @@ class AuthService {
                 throw error;
             }
             console.error('Login error:', error.message || error);
-            throw new errors_1.AppError('An error occurred during login', 500);
+            throw new errors_1.AppError(`An error occurred during login: ${error.message || error}`, 500);
         }
     }
     /**
