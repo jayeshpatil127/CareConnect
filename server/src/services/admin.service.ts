@@ -160,8 +160,8 @@ export class AdminService {
 
       // 3. Insert into users
       const [userResult] = await connection.execute<ResultSetHeader>(
-        'INSERT INTO users (full_name, email, password_hash, role) VALUES (?, ?, ?, "doctor")',
-        [data.fullName, data.email, passwordHash]
+        'INSERT INTO users (full_name, email, password_hash, role) VALUES (?, ?, ?, ?)',
+        [data.fullName, data.email, passwordHash, 'doctor']
       );
       const userId = userResult.insertId;
 
@@ -175,8 +175,8 @@ export class AdminService {
       // 5. System audit log
       try {
         await connection.execute<ResultSetHeader>(
-          'INSERT INTO system_logs (user_id, level, action, message) VALUES (?, "info", "DOCTOR_CREATED", ?)',
-          [adminUserId, `Admin created doctor account for ${data.fullName} (${data.email})`]
+          'INSERT INTO system_logs (user_id, level, action, message) VALUES (?, ?, ?, ?)',
+          [adminUserId, 'info', 'DOCTOR_CREATED', `Admin created doctor account for ${data.fullName} (${data.email})`]
         );
       } catch (logErr) {
         console.warn('Failed to write audit log:', logErr);
@@ -204,7 +204,7 @@ export class AdminService {
         throw new AppError('A user with this email already exists', 409);
       }
       if (error instanceof AppError) throw error;
-      console.error('Failed to add doctor:', error.message || error);
+      console.error('[AdminService.addDoctor] Failed to add doctor:', error.code || '', error.message || error);
       throw new AppError('Failed to create doctor account', 500);
     } finally {
       connection.release();
@@ -238,8 +238,8 @@ export class AdminService {
 
       try {
         await pool.execute<ResultSetHeader>(
-          'INSERT INTO system_logs (user_id, level, action, message) VALUES (?, "info", "DOCTOR_STATUS_UPDATED", ?)',
-          [adminUserId, `Admin updated status for Dr. ${doctor.full_name} from '${doctor.status}' to '${status}'`]
+          'INSERT INTO system_logs (user_id, level, action, message) VALUES (?, ?, ?, ?)',
+          [adminUserId, 'info', 'DOCTOR_STATUS_UPDATED', `Admin updated status for Dr. ${doctor.full_name} from '${doctor.status}' to '${status}'`]
         );
       } catch (logErr) {
         console.warn('Failed to write audit log:', logErr);
@@ -332,8 +332,8 @@ export class AdminService {
 
       // 3. Insert into users
       const [userResult] = await connection.execute<ResultSetHeader>(
-        'INSERT INTO users (full_name, email, password_hash, role) VALUES (?, ?, ?, "patient")',
-        [data.fullName, data.email, passwordHash]
+        'INSERT INTO users (full_name, email, password_hash, role) VALUES (?, ?, ?, ?)',
+        [data.fullName, data.email, passwordHash, 'patient']
       );
       const userId = userResult.insertId;
 
@@ -347,8 +347,8 @@ export class AdminService {
       // 5. System audit log
       try {
         await connection.execute<ResultSetHeader>(
-          'INSERT INTO system_logs (user_id, level, action, message) VALUES (?, "info", "PATIENT_CREATED", ?)',
-          [adminUserId, `Admin created patient account for ${data.fullName} (${data.email})`]
+          'INSERT INTO system_logs (user_id, level, action, message) VALUES (?, ?, ?, ?)',
+          [adminUserId, 'info', 'PATIENT_CREATED', `Admin created patient account for ${data.fullName} (${data.email})`]
         );
       } catch (logErr) {
         console.warn('Failed to write audit log:', logErr);
@@ -378,7 +378,7 @@ export class AdminService {
         throw new AppError('A user with this email already exists', 409);
       }
       if (error instanceof AppError) throw error;
-      console.error('Failed to add patient:', error.message || error);
+      console.error('[AdminService.addPatient] Failed to add patient:', error.code || '', error.message || error);
       throw new AppError('Failed to create patient account', 500);
     } finally {
       connection.release();

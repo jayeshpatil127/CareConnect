@@ -85,14 +85,14 @@ class AdminService {
             const passwordHash = await bcryptjs_1.default.hash(data.password, 10);
             await connection.beginTransaction();
             // 3. Insert into users
-            const [userResult] = await connection.execute('INSERT INTO users (full_name, email, password_hash, role) VALUES (?, ?, ?, "doctor")', [data.fullName, data.email, passwordHash]);
+            const [userResult] = await connection.execute('INSERT INTO users (full_name, email, password_hash, role) VALUES (?, ?, ?, ?)', [data.fullName, data.email, passwordHash, 'doctor']);
             const userId = userResult.insertId;
             // 4. Insert into doctors
             const [docResult] = await connection.execute('INSERT INTO doctors (user_id, specialization, status) VALUES (?, ?, ?)', [userId, data.specialization, data.status]);
             const doctorId = docResult.insertId;
             // 5. System audit log
             try {
-                await connection.execute('INSERT INTO system_logs (user_id, level, action, message) VALUES (?, "info", "DOCTOR_CREATED", ?)', [adminUserId, `Admin created doctor account for ${data.fullName} (${data.email})`]);
+                await connection.execute('INSERT INTO system_logs (user_id, level, action, message) VALUES (?, ?, ?, ?)', [adminUserId, 'info', 'DOCTOR_CREATED', `Admin created doctor account for ${data.fullName} (${data.email})`]);
             }
             catch (logErr) {
                 console.warn('Failed to write audit log:', logErr);
@@ -121,7 +121,7 @@ class AdminService {
             }
             if (error instanceof errors_1.AppError)
                 throw error;
-            console.error('Failed to add doctor:', error.message || error);
+            console.error('[AdminService.addDoctor] Failed to add doctor:', error.code || '', error.message || error);
             throw new errors_1.AppError('Failed to create doctor account', 500);
         }
         finally {
@@ -140,7 +140,7 @@ class AdminService {
         try {
             await db_1.pool.execute('UPDATE doctors SET status = ? WHERE id = ?', [status, doctorId]);
             try {
-                await db_1.pool.execute('INSERT INTO system_logs (user_id, level, action, message) VALUES (?, "info", "DOCTOR_STATUS_UPDATED", ?)', [adminUserId, `Admin updated status for Dr. ${doctor.full_name} from '${doctor.status}' to '${status}'`]);
+                await db_1.pool.execute('INSERT INTO system_logs (user_id, level, action, message) VALUES (?, ?, ?, ?)', [adminUserId, 'info', 'DOCTOR_STATUS_UPDATED', `Admin updated status for Dr. ${doctor.full_name} from '${doctor.status}' to '${status}'`]);
             }
             catch (logErr) {
                 console.warn('Failed to write audit log:', logErr);
@@ -221,14 +221,14 @@ class AdminService {
             const passwordHash = await bcryptjs_1.default.hash(data.password, 10);
             await connection.beginTransaction();
             // 3. Insert into users
-            const [userResult] = await connection.execute('INSERT INTO users (full_name, email, password_hash, role) VALUES (?, ?, ?, "patient")', [data.fullName, data.email, passwordHash]);
+            const [userResult] = await connection.execute('INSERT INTO users (full_name, email, password_hash, role) VALUES (?, ?, ?, ?)', [data.fullName, data.email, passwordHash, 'patient']);
             const userId = userResult.insertId;
             // 4. Insert into patients
             const [patResult] = await connection.execute('INSERT INTO patients (user_id, blood_group, allergies, emergency_contact_name, emergency_contact_phone) VALUES (?, ?, ?, ?, ?)', [userId, data.bloodGroup ?? null, data.allergies ?? null, data.emergencyContactName ?? null, data.emergencyContactPhone ?? null]);
             const patientId = patResult.insertId;
             // 5. System audit log
             try {
-                await connection.execute('INSERT INTO system_logs (user_id, level, action, message) VALUES (?, "info", "PATIENT_CREATED", ?)', [adminUserId, `Admin created patient account for ${data.fullName} (${data.email})`]);
+                await connection.execute('INSERT INTO system_logs (user_id, level, action, message) VALUES (?, ?, ?, ?)', [adminUserId, 'info', 'PATIENT_CREATED', `Admin created patient account for ${data.fullName} (${data.email})`]);
             }
             catch (logErr) {
                 console.warn('Failed to write audit log:', logErr);
@@ -259,7 +259,7 @@ class AdminService {
             }
             if (error instanceof errors_1.AppError)
                 throw error;
-            console.error('Failed to add patient:', error.message || error);
+            console.error('[AdminService.addPatient] Failed to add patient:', error.code || '', error.message || error);
             throw new errors_1.AppError('Failed to create patient account', 500);
         }
         finally {

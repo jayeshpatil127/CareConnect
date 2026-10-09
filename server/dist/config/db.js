@@ -6,12 +6,17 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.pool = void 0;
 const promise_1 = __importDefault(require("mysql2/promise"));
 const index_1 = require("./index");
+const isLocalHost = index_1.config.db.host === 'localhost' || index_1.config.db.host === '127.0.0.1';
+const sslConfig = process.env.DB_SSL === 'true'
+    ? { rejectUnauthorized: true }
+    : (process.env.DB_SSL === 'false' || isLocalHost ? undefined : { rejectUnauthorized: true });
 exports.pool = promise_1.default.createPool({
     host: index_1.config.db.host,
     port: index_1.config.db.port,
     user: index_1.config.db.user,
     password: index_1.config.db.password,
     database: index_1.config.db.database,
+    ssl: sslConfig,
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0,

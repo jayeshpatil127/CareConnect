@@ -7,6 +7,8 @@ const patient_controller_1 = require("../controllers/patient.controller");
 const router = (0, express_1.Router)();
 // Protect all patient routes: require valid JWT and patient role
 router.use(auth_middleware_1.authenticateToken, (0, role_middleware_1.authorizeRole)('patient'));
+// GET /api/patient/doctors  — returns active doctors for appointment booking
+router.get('/doctors', patient_controller_1.PatientController.getActiveDoctors);
 // GET /api/patient/appointments
 router.get('/appointments', patient_controller_1.PatientController.getAppointments);
 // POST /api/patient/appointments
