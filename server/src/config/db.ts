@@ -4,8 +4,8 @@ import { config } from './index';
 
 const isLocalHost = config.db.host === 'localhost' || config.db.host === '127.0.0.1';
 const sslConfig = process.env.DB_SSL === 'true'
-  ? { rejectUnauthorized: true }
-  : (process.env.DB_SSL === 'false' || isLocalHost ? undefined : { rejectUnauthorized: true });
+  ? { rejectUnauthorized: false }
+  : (process.env.DB_SSL === 'false' || isLocalHost ? undefined : { rejectUnauthorized: false });
 
 export const pool = mysql.createPool({
   host: config.db.host,

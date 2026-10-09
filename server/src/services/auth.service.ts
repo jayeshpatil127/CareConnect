@@ -176,7 +176,7 @@ export class AuthService {
       }
 
       console.error('Login error:', error.message || error);
-      throw new AppError('An error occurred during login', 500);
+      throw new AppError(`An error occurred during login: ${error.message || error}`, 500);
     }
   }
 
